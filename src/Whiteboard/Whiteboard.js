@@ -1,7 +1,12 @@
 import React from "react";
+import Menu from "./Menu";
 
 const Whiteboard = () => {
-  return <div>Whiteboard</div>;
+  return (
+    <>
+      <Menu />
+    </>
+  );
 };
 
 export default Whiteboard;

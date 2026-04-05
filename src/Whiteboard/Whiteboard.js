@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import Menu from "./Menu";
 import rough from "roughjs/bundled/rough.esm";
 import { actions, toolTypes } from "../constants";
+import { createElement } from "./utils";
+import { v4 as uuid } from "uuid";
 
 const Whiteboard = () => {
   const canvasRef = useRef();
@@ -27,6 +29,17 @@ const Whiteboard = () => {
     if (toolType === toolTypes.RECTANGLE) {
       setAction(actions.DRAWING);
     }
+
+    const element = createElement({
+      x1: clientX,
+      y1: clientY,
+      x2: clientX,
+      y2: clientY,
+      toolType,
+      id: uuid(),
+    });
+
+    console.log(element);
   };
 
   return (

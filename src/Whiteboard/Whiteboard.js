@@ -10,8 +10,8 @@ import { updateElement } from "./whiteboardSlice";
 let selectedElement;
 
 const setSelectedElement = (e1) => {
-  selectedElement = e1
-}
+  selectedElement = e1;
+};
 
 const Whiteboard = () => {
   const canvasRef = useRef();
@@ -52,11 +52,17 @@ const Whiteboard = () => {
     dispatch(updateElement(element));
   };
 
+  const handleMouseUp = () => {
+    setAction(null);
+    setSelectedElement(null);
+  };
+
   return (
     <>
       <Menu />
       <canvas
         onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
         ref={canvasRef}
         width={window.innerWidth}
         height={window.innerHeight}

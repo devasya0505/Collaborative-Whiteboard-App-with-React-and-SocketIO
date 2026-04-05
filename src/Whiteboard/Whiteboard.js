@@ -1,15 +1,24 @@
 import React, { useRef, useLayoutEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Menu from "./Menu";
 import rough from "roughjs/bundled/rough.esm";
 import { actions, toolTypes } from "../constants";
 import { createElement } from "./utils";
 import { v4 as uuid } from "uuid";
+import { updateElement } from "./whiteboardSlice";
+
+let selectedElement;
+
+const setSelectedElement = (e1) => {
+  selectedElement = e1
+}
 
 const Whiteboard = () => {
   const canvasRef = useRef();
   const toolType = useSelector((state) => state.whiteboard.tool);
   const [action, setAction] = useState(null);
+
+  const dispatch = useDispatch();
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
@@ -39,7 +48,8 @@ const Whiteboard = () => {
       id: uuid(),
     });
 
-    console.log(element);
+    setSelectedElement(element);
+    dispatch(updateElement(element));
   };
 
   return (

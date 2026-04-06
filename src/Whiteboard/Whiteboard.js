@@ -5,7 +5,7 @@ import rough from "roughjs/bundled/rough.esm";
 import { actions, toolTypes } from "../constants";
 import { createElement } from "./utils";
 import { v4 as uuid } from "uuid";
-import { updateElement } from "./whiteboardSlice";
+import { updateElement as updateElementInStore } from "./whiteboardSlice";
 
 let selectedElement;
 
@@ -16,6 +16,8 @@ const setSelectedElement = (e1) => {
 const Whiteboard = () => {
   const canvasRef = useRef();
   const toolType = useSelector((state) => state.whiteboard.tool);
+  const elements = useSelector((state) => state.whiteboard.elements);
+
   const [action, setAction] = useState(null);
 
   const dispatch = useDispatch();
@@ -49,12 +51,33 @@ const Whiteboard = () => {
     });
 
     setSelectedElement(element);
-    dispatch(updateElement(element));
+    dispatch(updateElementInStore(element));
   };
 
   const handleMouseUp = () => {
     setAction(null);
     setSelectedElement(null);
+  };
+
+  const handleMouseMove = (event) => {
+    const { clientX, clientY } = event;
+
+    if (action === actions.DRAWING) {
+      const index = elements.findIndex((el) => el.id === selectedElement.id);
+
+      if (index !== -1) {
+        dispatch(
+          updateElementInStore({
+            id: elements[index].id,
+            x1: elements[index].x1,
+            y1: elements[index].y1,
+            x2: clientX,
+            y2: clientY,
+            toolType: elements[index].toolType,
+          }),
+        );
+      }
+    }
   };
 
   return (
@@ -63,6 +86,7 @@ const Whiteboard = () => {
       <canvas
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
         ref={canvasRef}
         width={window.innerWidth}
         height={window.innerHeight}

@@ -19,15 +19,18 @@ const whiteboardSlice = createSlice({
 
       if (index === -1) {
         state.elements.push(action.payload);
-      }
-      else{
+      } else {
         // if index will be found
         // update element in our array of elements
+        state.elements[index] = action.payload;
       }
+    },
+    setElements: (state, action) => {
+      state.elements = action.payload;
     },
   },
 });
 
-export const { setToolType, updateElement } = whiteboardSlice.actions;
+export const { setToolType, updateElement, setElements } = whiteboardSlice.actions;
 
 export default whiteboardSlice.reducer;

@@ -1,10 +1,14 @@
 import React, { useRef, useLayoutEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import Menu from "./Menu";
 import rough from "roughjs/bundled/rough.esm";
 import { toolTypes } from "../constants";
-import { createElement } from "./utils/createElement";
-import { drawElement } from "./utils/drawElement";
+import {
+  createElement,
+  drawElement,
+  adjustmentRequired,
+  adjustElementCoordinates,
+} from "./utils";
 import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore } from "./whiteboardSlice";
 
@@ -19,17 +23,17 @@ const Whiteboard = () => {
 
   const dispatch = useDispatch();
 
-  // DRAW EVERYTHING FROM STATE
+  // 🔥 DRAW FROM REDUX STATE
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d");
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const roughCanvas = rough.canvas(canvas);
 
     elements.forEach((element) => {
-      drawElement({ roughCanvas, element });
+      drawElement({ roughCanvas, context: ctx, element });
     });
   }, [elements]);
 
@@ -57,9 +61,7 @@ const Whiteboard = () => {
     const { clientX, clientY } = event;
 
     if (action === "drawing" && selectedElement) {
-      const index = elements.findIndex(
-        (el) => el.id === selectedElement.id
-      );
+      const index = elements.findIndex((el) => el.id === selectedElement.id);
 
       if (index !== -1) {
         dispatch(
@@ -70,13 +72,36 @@ const Whiteboard = () => {
             x2: clientX,
             y2: clientY,
             toolType: elements[index].toolType,
-          })
+          }),
         );
       }
     }
   };
 
   const handleMouseUp = () => {
+    if (selectedElement) {
+      const index = elements.findIndex((el) => el.id === selectedElement.id);
+
+      if (index !== -1) {
+        const element = elements[index];
+
+        if (adjustmentRequired(element.toolType)) {
+          const { x1, y1, x2, y2 } = adjustElementCoordinates(element);
+
+          dispatch(
+            updateElementInStore({
+              id: element.id,
+              x1,
+              y1,
+              x2,
+              y2,
+              toolType: element.toolType,
+            }),
+          );
+        }
+      }
+    }
+
     setAction(null);
     setSelectedElement(null);
   };

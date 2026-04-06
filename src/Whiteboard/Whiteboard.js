@@ -2,43 +2,42 @@ import React, { useRef, useLayoutEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Menu from "./Menu";
 import rough from "roughjs/bundled/rough.esm";
-import { actions, toolTypes } from "../constants";
-import { createElement } from "./utils";
+import { toolTypes } from "../constants";
+import { createElement } from "./utils/createElement";
+import { drawElement } from "./utils/drawElement";
 import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore } from "./whiteboardSlice";
 
-let selectedElement;
-
-const setSelectedElement = (e1) => {
-  selectedElement = e1;
-};
-
 const Whiteboard = () => {
   const canvasRef = useRef();
+
   const toolType = useSelector((state) => state.whiteboard.tool);
   const elements = useSelector((state) => state.whiteboard.elements);
 
   const [action, setAction] = useState(null);
+  const [selectedElement, setSelectedElement] = useState(null);
 
   const dispatch = useDispatch();
 
+  // DRAW EVERYTHING FROM STATE
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
 
-    const rc = rough.canvas(canvas);
+    context.clearRect(0, 0, canvas.width, canvas.height);
 
-    rc.rectangle(10, 10, 200, 200); // x, y, width, height
-    rc.rectangle(20, 20, 300, 300); // x, y, width, height
-    rc.line(80, 120, 300, 100); // x1, y1, x2, y2
-    rc.line(0, 0, 100, 100); // x1, y1, x2, y2
-  }, []);
+    const roughCanvas = rough.canvas(canvas);
+
+    elements.forEach((element) => {
+      drawElement({ roughCanvas, element });
+    });
+  }, [elements]);
 
   const handleMouseDown = (event) => {
     const { clientX, clientY } = event;
-    console.log(toolType);
 
     if (toolType === toolTypes.RECTANGLE) {
-      setAction(actions.DRAWING);
+      setAction("drawing");
     }
 
     const element = createElement({
@@ -54,16 +53,13 @@ const Whiteboard = () => {
     dispatch(updateElementInStore(element));
   };
 
-  const handleMouseUp = () => {
-    setAction(null);
-    setSelectedElement(null);
-  };
-
   const handleMouseMove = (event) => {
     const { clientX, clientY } = event;
 
-    if (action === actions.DRAWING) {
-      const index = elements.findIndex((el) => el.id === selectedElement.id);
+    if (action === "drawing" && selectedElement) {
+      const index = elements.findIndex(
+        (el) => el.id === selectedElement.id
+      );
 
       if (index !== -1) {
         dispatch(
@@ -74,22 +70,27 @@ const Whiteboard = () => {
             x2: clientX,
             y2: clientY,
             toolType: elements[index].toolType,
-          }),
+          })
         );
       }
     }
+  };
+
+  const handleMouseUp = () => {
+    setAction(null);
+    setSelectedElement(null);
   };
 
   return (
     <>
       <Menu />
       <canvas
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
         ref={canvasRef}
         width={window.innerWidth}
         height={window.innerHeight}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
       />
     </>
   );

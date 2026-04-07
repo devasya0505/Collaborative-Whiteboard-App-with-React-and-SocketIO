@@ -11,15 +11,15 @@ export const connectWithSocketServer = () => {
     console.log("connected to socket.io server");
   });
 
-  // socket.on("whiteboard-state", (elements) => {
-  //   store.dispatch(setElements(elements));
-  // });
+  socket.on("whiteboard-state", (elements) => {
+    store.dispatch(setElements(elements));
+  });
 
-  // socket.on("element-update", (elementData) => {
-  //   store.dispatch(updateElement(elementData));
-  // });
+  socket.on("element-update", (elementData) => {
+    store.dispatch(updateElement(elementData));
+  });
 };
 
-// export const emitElementUpdate = (elementData) => {
-//   socket.emit("element-update", elementData);
-// };
+export const emitElementUpdate = (elementData) => {
+  socket.emit("element-update", elementData);
+};

@@ -11,6 +11,7 @@ import {
 } from "./utils";
 import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore } from "./whiteboardSlice";
+import { emitElementUpdate } from "../socketConn/socketConn";
 
 const Whiteboard = () => {
   const canvasRef = useRef();
@@ -57,6 +58,7 @@ const Whiteboard = () => {
 
     setSelectedElement(element);
     dispatch(updateElementInStore(element));
+    emitElementUpdate(element);
   };
 
   const handleMouseMove = (event) => {
@@ -66,16 +68,17 @@ const Whiteboard = () => {
       const index = elements.findIndex((el) => el.id === selectedElement.id);
 
       if (index !== -1) {
-        dispatch(
-          updateElementInStore({
-            id: elements[index].id,
-            x1: elements[index].x1,
-            y1: elements[index].y1,
-            x2: clientX,
-            y2: clientY,
-            toolType: elements[index].toolType,
-          }),
-        );
+        const updatedElement = {
+          id: elements[index].id,
+          x1: elements[index].x1,
+          y1: elements[index].y1,
+          x2: clientX,
+          y2: clientY,
+          toolType: elements[index].toolType,
+        };
+
+        dispatch(updateElementInStore(updatedElement));
+        emitElementUpdate(updatedElement);
       }
     }
   };
@@ -90,16 +93,17 @@ const Whiteboard = () => {
         if (adjustmentRequired(element.toolType)) {
           const { x1, y1, x2, y2 } = adjustElementCoordinates(element);
 
-          dispatch(
-            updateElementInStore({
-              id: element.id,
-              x1,
-              y1,
-              x2,
-              y2,
-              toolType: element.toolType,
-            }),
-          );
+          const adjustedElement = {
+            id: element.id,
+            x1,
+            y1,
+            x2,
+            y2,
+            toolType: element.toolType,
+          };
+
+          dispatch(updateElementInStore(adjustedElement));
+          emitElementUpdate(adjustedElement);
         }
       }
     }

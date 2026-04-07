@@ -1,18 +1,14 @@
 import { toolTypes } from "../../constants";
 
 export const createElement = ({ x1, y1, x2, y2, toolType, id }) => {
+  if (!toolType) return null;
+
   switch (toolType) {
     case toolTypes.RECTANGLE:
-      return {
-        id,
-        toolType,
-        x1,
-        y1,
-        x2,
-        y2,
-      };
+      return { id, toolType, x1, y1, x2, y2 };
 
     default:
-      throw new Error("Something went wrong when creating element");
+      console.error("Invalid toolType:", toolType);
+      return null;
   }
 };

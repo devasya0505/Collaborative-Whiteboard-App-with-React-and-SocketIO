@@ -53,6 +53,8 @@ const Whiteboard = () => {
       id: uuid(),
     });
 
+    if (!element) return;
+
     setSelectedElement(element);
     dispatch(updateElementInStore(element));
   };

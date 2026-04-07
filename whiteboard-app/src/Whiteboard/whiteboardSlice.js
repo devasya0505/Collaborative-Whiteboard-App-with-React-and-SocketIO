@@ -14,10 +14,10 @@ const whiteboardSlice = createSlice({
     },
 
     updateElement: (state, action) => {
-      const { id } = action.payload;
+      if (!action.payload) return; // ✅ prevents crash
 
       const index = state.elements.findIndex(
-        (element) => element.id === id
+        (el) => el.id === action.payload.id,
       );
 
       if (index === -1) {

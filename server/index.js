@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 app.use(cors());
 
-// let elements = [];
+let elements = [];
 
 const io = new Server(server, {
   cors: {
@@ -17,6 +17,16 @@ const io = new Server(server, {
   },
 });
 
+io.on("connection", (socket) => {
+  console.log("user connected");
+  io.to(socket.id).emit("whiteboard-state", elements);
+
+  socket.on("element-update", (elementData) => {
+    updateElementInElements(elementData);
+
+    socket.broadcast.emit("element-update", elementData);
+  });
+});
 
 app.get("/", (req, res) => {
   res.send("Hello server is working");

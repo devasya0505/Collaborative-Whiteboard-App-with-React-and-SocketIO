@@ -13,7 +13,11 @@ export const drawElement = ({ roughCanvas, element }) => {
       );
       break;
 
+    case toolTypes.LINE:
+      roughCanvas.line(x1, y1, x2, y2);
+      break;
+
     default:
-      throw new Error("Something went wrong when drawing element");
+      throw new Error("Error drawing element");
   }
 };

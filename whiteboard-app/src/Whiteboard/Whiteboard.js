@@ -67,23 +67,43 @@ const Whiteboard = () => {
   const handleMouseMove = (event) => {
     const { clientX, clientY } = event;
 
-    if (action === "drawing" && selectedElement) {
-      const index = elements.findIndex((el) => el.id === selectedElement.id);
+    if (action !== "drawing" || !selectedElement) return;
 
-      if (index !== -1) {
-        const updatedElement = {
-          id: elements[index].id,
-          x1: elements[index].x1,
-          y1: elements[index].y1,
-          x2: clientX,
-          y2: clientY,
-          toolType: elements[index].toolType,
-        };
+    const index = elements.findIndex((el) => el.id === selectedElement.id);
 
-        dispatch(updateElementInStore(updatedElement));
-        emitElementUpdate(updatedElement);
-      }
+    if (index === -1) return;
+
+    const el = elements[index];
+
+    // PENCIL (separate logic)
+    if (el.toolType === toolTypes.PENCIL) {
+      const updatedPoints = [
+        ...(Array.isArray(el.points) ? el.points : []),
+        [clientX, clientY],
+      ];
+
+      const updatedElement = {
+        ...el,
+        points: updatedPoints,
+      };
+
+      dispatch(updateElementInStore(updatedElement));
+      emitElementUpdate(updatedElement);
+      return;
     }
+
+    // RECTANGLE / LINE
+    const updatedElement = {
+      id: el.id,
+      x1: el.x1,
+      y1: el.y1,
+      x2: clientX,
+      y2: clientY,
+      toolType: el.toolType,
+    };
+
+    dispatch(updateElementInStore(updatedElement));
+    emitElementUpdate(updatedElement);
   };
 
   const handleMouseUp = () => {

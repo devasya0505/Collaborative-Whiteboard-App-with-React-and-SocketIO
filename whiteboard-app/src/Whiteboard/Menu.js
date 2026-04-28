@@ -2,6 +2,7 @@ import React from "react";
 import rectangleIcon from "../resources/icons/rectangle.svg";
 import lineIcon from "../resources/icons/line.svg";
 import rubberIcon from "../resources/icons/rubber.svg";
+import pencilIcon from "../resources/icons/pencil.svg";
 import { toolTypes } from "../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { setElements, setToolType } from "./whiteboardSlice";
@@ -40,6 +41,7 @@ const Menu = () => {
       <IconButton src={rectangleIcon} type={toolTypes.RECTANGLE} />
       <IconButton src={lineIcon} type={toolTypes.LINE} />
       <IconButton src={rubberIcon} isRubber />
+      <IconButton src={pencilIcon} type={toolTypes.PENCIL} />
     </div>
   );
 };

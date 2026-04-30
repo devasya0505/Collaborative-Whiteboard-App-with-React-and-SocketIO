@@ -1,6 +1,6 @@
 import { toolTypes } from "../../constants";
 
-export const createElement = ({ x1, y1, x2, y2, toolType, id }) => {
+export const createElement = ({ x1, y1, x2, y2, toolType, id, text }) => {
   if (!toolType) return null;
 
   switch (toolType) {
@@ -16,6 +16,9 @@ export const createElement = ({ x1, y1, x2, y2, toolType, id }) => {
         toolType,
         points: [[x1, y1]],
       };
+
+    case toolTypes.TEXT:
+      return { id, type: toolType, x1, y1, text: text || "" };
 
     default:
       console.error("Invalid toolType:", toolType);

@@ -24,7 +24,7 @@ const Whiteboard = () => {
 
   const dispatch = useDispatch();
 
-  // 🔥 DRAW FROM REDUX STATE
+  // DRAW FROM REDUX STATE
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -41,27 +41,53 @@ const Whiteboard = () => {
   const handleMouseDown = (event) => {
     const { clientX, clientY } = event;
 
-    if (
-      toolType === toolTypes.RECTANGLE ||
-      toolType === toolTypes.LINE ||
-      toolType === toolTypes.PENCIL
-    ) {
-      setAction("drawing");
-      const element = createElement({
-        x1: clientX,
-        y1: clientY,
-        x2: clientX,
-        y2: clientY,
-        toolType,
-        id: uuid(),
-      });
+    const element = createElement({
+      x1: clientX,
+      y1: clientY,
+      x2: clientX,
+      y2: clientY,
+      toolType,
+      id: uuid(),
+    });
 
-      if (!element) return;
-
-      setSelectedElement(element);
-      dispatch(updateElementInStore(element));
-      emitElementUpdate(element);
+    switch (toolType) {
+      case toolTypes.RECTANGLE:
+      case toolTypes.LINE:
+      case toolTypes.PENCIL: {
+        setAction("drawing");
+        break;
+      }
+      case toolTypes.TEXT: {
+        setAction("writing");
+        break;
+      }
     }
+
+    setSelectedElement(element);
+    dispatch(updateElementInStore(element));
+    emitElementUpdate(element);
+
+    // if (
+    //   toolType === toolTypes.RECTANGLE ||
+    //   toolType === toolTypes.LINE ||
+    //   toolType === toolTypes.PENCIL
+    // ) {
+    //   setAction("drawing");
+    //   const element = createElement({
+    //     x1: clientX,
+    //     y1: clientY,
+    //     x2: clientX,
+    //     y2: clientY,
+    //     toolType,
+    //     id: uuid(),
+    //   });
+
+    if (!element) return;
+
+    //   setSelectedElement(element);
+    //   dispatch(updateElementInStore(element));
+    //   emitElementUpdate(element);
+    // }
   };
 
   const handleMouseMove = (event) => {

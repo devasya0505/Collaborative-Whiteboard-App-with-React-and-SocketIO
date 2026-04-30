@@ -8,6 +8,7 @@ import {
   drawElement,
   adjustmentRequired,
   adjustElementCoordinates,
+  updateElement,
 } from "./utils";
 import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore } from "./whiteboardSlice";
@@ -15,6 +16,7 @@ import { emitElementUpdate } from "../socketConn/socketConn";
 
 const Whiteboard = () => {
   const canvasRef = useRef();
+  const textAreaRef = useRef();
 
   const toolType = useSelector((state) => state.whiteboard.tool);
   const elements = useSelector((state) => state.whiteboard.elements);
@@ -161,9 +163,45 @@ const Whiteboard = () => {
     setSelectedElement(null);
   };
 
+  const handleTextareaBlur = (event) => {
+    const { id, x1, y1, type } = selectedElement;
+
+    const index = elements.findIndex((el) => el.id === selectedElement.id);
+
+    if (index !== -1) {
+      updateElement(
+        { id, x1, y1, type, text: event.target.value, index },
+        elements,
+      );
+
+      setAction(null);
+      setSelectedElement(null);
+    }
+  };
+
   return (
     <>
       <Menu />
+      {action === "writing" ? (
+        <textarea
+          ref={textAreaRef}
+          onBlur={handleTextareaBlur}
+          style={{
+            position: "absolute",
+            top: selectedElement.y1 - 3,
+            left: selectedElement.x1,
+            font: "24px sans-serif",
+            margin: 0,
+            padding: 0,
+            border: 0,
+            outline: 0,
+            resize: "auto",
+            overflow: "hidden",
+            whiteSpace: "pre",
+            background: "transparent",
+          }}
+        />
+      ) : null}
       <canvas
         ref={canvasRef}
         width={window.innerWidth}

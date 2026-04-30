@@ -18,7 +18,7 @@ export const createElement = ({ x1, y1, x2, y2, toolType, id, text }) => {
       };
 
     case toolTypes.TEXT:
-      return { id, type: toolType, x1, y1, text: text || "" };
+      return { id, toolType, x1, y1, text: text || "" };
 
     default:
       console.error("Invalid toolType:", toolType);

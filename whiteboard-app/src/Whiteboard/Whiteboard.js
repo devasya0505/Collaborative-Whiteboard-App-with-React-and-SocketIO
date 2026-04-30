@@ -8,7 +8,6 @@ import {
   drawElement,
   adjustmentRequired,
   adjustElementCoordinates,
-  updateElement,
 } from "./utils";
 import { v4 as uuid } from "uuid";
 import { updateElement as updateElementInStore } from "./whiteboardSlice";
@@ -40,8 +39,18 @@ const Whiteboard = () => {
     });
   }, [elements]);
 
+  // useEffect(() => {
+  //   if (action === "writing" && textAreaRef.current) {
+  //     textAreaRef.current.focus();
+  //   }
+  // }, [action]);
+
   const handleMouseDown = (event) => {
     const { clientX, clientY } = event;
+
+    if (selectedElement && action === "writing") {
+      return;
+    }
 
     const element = createElement({
       x1: clientX,
@@ -51,6 +60,10 @@ const Whiteboard = () => {
       toolType,
       id: uuid(),
     });
+
+    if (!element) return;
+
+    setSelectedElement(element);
 
     switch (toolType) {
       case toolTypes.RECTANGLE:
@@ -65,7 +78,6 @@ const Whiteboard = () => {
       }
     }
 
-    setSelectedElement(element);
     dispatch(updateElementInStore(element));
     emitElementUpdate(element);
 
@@ -83,8 +95,6 @@ const Whiteboard = () => {
     //     toolType,
     //     id: uuid(),
     //   });
-
-    if (!element) return;
 
     //   setSelectedElement(element);
     //   dispatch(updateElementInStore(element));
@@ -136,7 +146,7 @@ const Whiteboard = () => {
 
   const handleMouseUp = () => {
     if (selectedElement) {
-      const index = elements.findIndex((el) => el.id === selectedElement.id);
+      const index = elements.findIndex((el) => el.id === selectedElement?.id);
 
       if (index !== -1) {
         const element = elements[index];
@@ -164,19 +174,20 @@ const Whiteboard = () => {
   };
 
   const handleTextareaBlur = (event) => {
-    const { id, x1, y1, type } = selectedElement;
+    const text = event.target.value;
 
-    const index = elements.findIndex((el) => el.id === selectedElement.id);
+    if (!selectedElement) return;
 
-    if (index !== -1) {
-      updateElement(
-        { id, x1, y1, type, text: event.target.value, index },
-        elements,
-      );
+    const updatedElement = {
+      ...selectedElement,
+      text,
+    };
 
-      setAction(null);
-      setSelectedElement(null);
-    }
+    dispatch(updateElementInStore(updatedElement));
+    emitElementUpdate(updatedElement);
+
+    setAction(null);
+    setSelectedElement(null);
   };
 
   return (
@@ -209,6 +220,7 @@ const Whiteboard = () => {
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
+        id="canvas"
       />
     </>
   );

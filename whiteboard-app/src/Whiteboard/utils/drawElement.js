@@ -29,6 +29,12 @@ export const drawElement = ({ roughCanvas, context, element }) => {
       break;
     }
 
+    case toolTypes.TEXT:
+      context.textBaseline = "top";
+      context.font = "24px sans-serif";
+      context.fillText(element.text || "", element.x1, element.y1);
+      break;
+
     default:
       console.error("Invalid toolType:", toolType);
   }
